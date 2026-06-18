@@ -15,6 +15,10 @@ import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ClientsModule } from './clients/clients.module';
+import { IncomesModule } from './incomes/incomes.module';
+import { ExpenseCategoriesModule } from './expense-categories/expense-categories.module';
+import { ExpensesModule } from './expenses/expenses.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
@@ -29,6 +33,10 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     PrismaModule,
     AuthModule,
     UsersModule,
+    ClientsModule,
+    IncomesModule,
+    ExpenseCategoriesModule,
+    ExpensesModule,
   ],
   providers: [
     // Rate limiting aplicado em todas as rotas
