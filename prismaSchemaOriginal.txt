@@ -1,0 +1,202 @@
+// prisma/schema.prisma
+// ORM Prisma — mapeamento do banco MySQL para o NestJS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  }
+
+// ─── Usuário ─────────────────────────────────────────────────
+model User {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  name         String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(150)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  incomes           Income[]
+  expenses          Expense[]
+  expenseCategories ExpenseCategory[]
+  clients           Client[]
+  loans             Loan[]
+
+  @@map("users")
+}
+
+// ─── Categoria de Despesa ────────────────────────────────────
+model ExpenseCategory {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int      @map("user_id") @db.UnsignedInt
+  name      String   @db.VarChar(80)
+  color     String?  @default("#607D8B") @db.VarChar(7)
+  icon      String?  @db.VarChar(50)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses Expense[]
+
+  @@index([userId])
+  @@map("expense_categories")
+}
+
+// ─── Receita ─────────────────────────────────────────────────
+model Income {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId      Int      @map("user_id") @db.UnsignedInt
+  description String   @db.VarChar(200)
+  amount      Decimal  @db.Decimal(15, 2)
+  receivedAt  DateTime @map("received_at") @db.Date
+  isRecurring Boolean  @default(false) @map("is_recurring")
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, receivedAt])
+  @@map("incomes")
+}
+
+// ─── Despesa ─────────────────────────────────────────────────
+model Expense {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId      Int      @map("user_id") @db.UnsignedInt
+  categoryId  Int?     @map("category_id") @db.UnsignedInt
+  description String   @db.VarChar(200)
+  amount      Decimal  @db.Decimal(15, 2)
+  dueDate     DateTime @map("due_date") @db.Date
+  paidAt      DateTime? @map("paid_at") @db.Date
+  isFixed     Boolean  @default(false) @map("is_fixed")
+  isPaid      Boolean  @default(false) @map("is_paid")
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category ExpenseCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, dueDate])
+  @@map("expenses")
+}
+
+// ─── Cliente ─────────────────────────────────────────────────
+model Client {
+  id        Int          @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int          @map("user_id") @db.UnsignedInt
+  name      String       @db.VarChar(100)
+  cpf       String?      @db.VarChar(14)
+  phone     String?      @db.VarChar(20)
+  email     String?      @db.VarChar(150)
+  address   String?      @db.VarChar(300)
+  city      String?      @db.VarChar(100)
+  state     String?      @db.Char(2)
+  status    ClientStatus @default(active)
+  notes     String?      @db.Text
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loans Loan[]
+
+  @@unique([userId, cpf])
+  @@index([userId])
+  @@map("clients")
+}
+
+enum ClientStatus {
+  active
+  inactive
+  defaulter
+}
+
+// ─── Empréstimo ───────────────────────────────────────────────
+model Loan {
+  id                 Int        @id @default(autoincrement()) @db.UnsignedInt
+  userId             Int        @map("user_id") @db.UnsignedInt
+  clientId           Int        @map("client_id") @db.UnsignedInt
+  principalAmount    Decimal    @map("principal_amount") @db.Decimal(15, 2)
+  interestRate       Decimal    @default(0) @map("interest_rate") @db.Decimal(8, 4)
+  totalAmount        Decimal    @map("total_amount") @db.Decimal(15, 2)
+  installmentsCount  Int        @map("installments_count") @db.SmallInt
+  startDate          DateTime   @map("start_date") @db.Date
+  firstDueDate       DateTime   @map("first_due_date") @db.Date
+  status             LoanStatus @default(active)
+  notes              String?    @db.Text
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  installments Installment[]
+
+  @@index([userId])
+  @@index([clientId])
+  @@map("loans")
+}
+
+enum LoanStatus {
+  active
+  paid
+  defaulted
+  cancelled
+}
+
+// ─── Parcela ─────────────────────────────────────────────────
+model Installment {
+  id                 Int               @id @default(autoincrement()) @db.UnsignedInt
+  loanId             Int               @map("loan_id") @db.UnsignedInt
+  installmentNumber  Int               @map("installment_number") @db.SmallInt
+  dueDate            DateTime          @map("due_date") @db.Date
+  amount             Decimal           @db.Decimal(15, 2)
+  paidAmount         Decimal           @default(0) @map("paid_amount") @db.Decimal(15, 2)
+  status             InstallmentStatus @default(pending)
+  paidAt             DateTime?         @map("paid_at") @db.Date
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  loan     Loan      @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@unique([loanId, installmentNumber])
+  @@index([dueDate])
+  @@index([status])
+  @@map("installments")
+}
+
+enum InstallmentStatus {
+  pending
+  partial
+  paid
+  overdue
+}
+
+// ─── Pagamento ───────────────────────────────────────────────
+model Payment {
+  id             Int           @id @default(autoincrement()) @db.UnsignedInt
+  installmentId  Int           @map("installment_id") @db.UnsignedInt
+  amountPaid     Decimal       @map("amount_paid") @db.Decimal(15, 2)
+  paidAt         DateTime      @default(now()) @map("paid_at")
+  paymentMethod  PaymentMethod @default(cash) @map("payment_method")
+  notes          String?       @db.Text
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  installment Installment @relation(fields: [installmentId], references: [id], onDelete: Restrict)
+
+  @@index([installmentId])
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  cash
+  pix
+  bank_transfer
+  other
+}
