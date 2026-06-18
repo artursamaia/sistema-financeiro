@@ -19,6 +19,9 @@ import { ClientsModule } from './clients/clients.module';
 import { IncomesModule } from './incomes/incomes.module';
 import { ExpenseCategoriesModule } from './expense-categories/expense-categories.module';
 import { ExpensesModule } from './expenses/expenses.module';
+import { LoansModule } from './loans/loans.module';
+import { InstallmentsModule } from './installments/installments.module';
+import { PaymentsModule } from './payments/payments.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
@@ -37,6 +40,9 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     IncomesModule,
     ExpenseCategoriesModule,
     ExpensesModule,
+    LoansModule,
+    InstallmentsModule,
+    PaymentsModule,
   ],
   providers: [
     // Rate limiting aplicado em todas as rotas
