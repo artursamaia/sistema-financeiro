@@ -1,0 +1,36 @@
+- Building...
+
+Initial chunk files | Names                 |  Raw size
+styles.css          | styles                |  93.68 kB | 
+polyfills.js        | polyfills             |  88.09 kB | 
+main.js             | main                  |   3.71 kB | 
+chunk-EJQWZTU7.js   | -                     |   2.94 kB | 
+chunk-DCHR6DCX.js   | -                     |   1.10 kB | 
+
+                    | Initial total         | 189.52 kB
+
+Lazy chunk files    | Names                 |  Raw size
+chunk-ODWHD75U.js   | loan-detail-component |  26.61 kB | 
+chunk-IFGWZUS7.js   | expenses-component    |  25.77 kB | 
+chunk-SLW4D54A.js   | loans-component       |  23.63 kB | 
+chunk-NU33W54Q.js   | clients-component     |  23.59 kB | 
+chunk-N3YIKQZ4.js   | incomes-component     |  21.87 kB | 
+chunk-53Z5SQQ3.js   | register-component    |  12.13 kB | 
+chunk-UQVGGYPZ.js   | dashboard-component   |  10.11 kB | 
+chunk-Z7ATI5GO.js   | login-component       |   9.54 kB | 
+chunk-5T7DIUZ3.js   | shell-component       |   7.70 kB | 
+chunk-IS2IFGQW.js   | -                     |   2.82 kB | 
+chunk-PUTCG6R5.js   | -                     |   1.65 kB | 
+chunk-S6CCKFTA.js   | -                     |   1.29 kB | 
+
+Application bundle generation complete. [4.949 seconds]
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/loans/loan-detail.component.ts:47:59:
+      47 │ ...  <h2>Empréstimo #{{ loan.id }} — {{ loan.clients?.name }}</h2>
+         ╵                                                    ~~~~
+
+
+Watch mode enabled. Watching for file changes...
+  ➜  Local:   http://localhost:4200/
