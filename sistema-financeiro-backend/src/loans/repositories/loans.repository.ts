@@ -17,6 +17,7 @@ import { loans, loans_status, Prisma } from '@prisma/client';
 import { CreateLoanDto } from '../dto/create-loan.dto';
 import { UpdateLoanDto } from '../dto/update-loan.dto';
 import { InstallmentData } from '../../common/utils/loan-calculator.util';
+import { DateUtil } from '../../common/utils/date.util';
 
 // Tipo rico: empréstimo com dados do cliente e resumo das parcelas
 export type LoanWithDetails = loans & {
@@ -109,8 +110,8 @@ export class LoansRepository {
           interest_rate:      dto.interest_rate,
           total_amount:       totalAmount,
           installments_count: dto.installments_count,
-          start_date:         new Date(dto.start_date),
-          first_due_date:     new Date(dto.first_due_date),
+          start_date:         DateUtil.parseLocalDate(dto.start_date),
+          first_due_date:     DateUtil.parseLocalDate(dto.first_due_date),
           notes:              dto.notes,
         },
       });

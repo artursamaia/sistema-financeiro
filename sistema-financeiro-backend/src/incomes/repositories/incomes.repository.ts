@@ -9,6 +9,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { incomes, Prisma } from '@prisma/client';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { UpdateIncomeDto } from '../dto/update-income.dto';
+import { DateUtil } from '../../common/utils/date.util';
 
 @Injectable()
 export class IncomesRepository {
@@ -30,13 +31,12 @@ export class IncomesRepository {
 
     // Filtro por período: constrói intervalo de datas do mês
     if (month && year) {
-      const startDate = new Date(year, month - 1, 1);       // 1º dia do mês
-      const endDate   = new Date(year, month, 0, 23, 59, 59); // último dia do mês
-      where.received_at = { gte: startDate, lte: endDate };
+      const { start, end } = DateUtil.monthRange(year, month);
+      where.received_at = { gte: start, lt: end };
     } else if (year) {
-      const startDate = new Date(year, 0, 1);
-      const endDate   = new Date(year, 11, 31, 23, 59, 59);
-      where.received_at = { gte: startDate, lte: endDate };
+      const { start } = DateUtil.monthRange(year, 1);
+      const { end }   = DateUtil.monthRange(year, 12);
+      where.received_at = { gte: start, lt: end };
     }
 
     return this.prisma.incomes.findMany({
@@ -55,7 +55,7 @@ export class IncomesRepository {
         user_id: userId,
         description: dto.description,
         amount: dto.amount,
-        received_at: new Date(dto.received_at),
+        received_at: DateUtil.parseLocalDate(dto.received_at),
         is_recurring: dto.is_recurring ?? false,
         notes: dto.notes,
       },
@@ -68,7 +68,7 @@ export class IncomesRepository {
       data: {
         ...(dto.description !== undefined && { description: dto.description }),
         ...(dto.amount      !== undefined && { amount: dto.amount }),
-        ...(dto.received_at !== undefined && { received_at: new Date(dto.received_at) }),
+        ...(dto.received_at !== undefined && { received_at: DateUtil.parseLocalDate(dto.received_at) }),
         ...(dto.is_recurring !== undefined && { is_recurring: dto.is_recurring }),
         ...(dto.notes       !== undefined && { notes: dto.notes }),
       },
@@ -84,13 +84,12 @@ export class IncomesRepository {
    * Usado pelo dashboard para exibir "Receitas do mês".
    */
   async sumByMonth(userId: number, month: number, year: number): Promise<number> {
-    const startDate = new Date(year, month - 1, 1);
-    const endDate   = new Date(year, month, 0, 23, 59, 59);
+    const { start, end } = DateUtil.monthRange(year, month);
 
     const result = await this.prisma.incomes.aggregate({
       where: {
-        user_id: userId,
-        received_at: { gte: startDate, lte: endDate },
+        user_id:    userId,
+        received_at: { gte: start, lt: end },
       },
       _sum: { amount: true },
     });

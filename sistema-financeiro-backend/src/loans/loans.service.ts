@@ -25,6 +25,7 @@ import { ClientsService } from '../clients/clients.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { LoanCalculatorUtil } from '../common/utils/loan-calculator.util';
+import { DateUtil } from '../common/utils/date.util';
 import { loans, loans_status } from '@prisma/client';
 
 @Injectable()
@@ -64,7 +65,7 @@ export class LoansService {
     }
 
     // 3. Calcula as parcelas usando a fórmula Price
-    const firstDueDate = new Date(dto.first_due_date);
+    const firstDueDate = DateUtil.parseLocalDate(dto.first_due_date);
     const installments = LoanCalculatorUtil.buildInstallments(
       dto.principal_amount,
       dto.interest_rate,

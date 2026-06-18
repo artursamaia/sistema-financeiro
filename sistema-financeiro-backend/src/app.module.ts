@@ -22,6 +22,7 @@ import { ExpensesModule } from './expenses/expenses.module';
 import { LoansModule } from './loans/loans.module';
 import { InstallmentsModule } from './installments/installments.module';
 import { PaymentsModule } from './payments/payments.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
@@ -43,6 +44,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     LoansModule,
     InstallmentsModule,
     PaymentsModule,
+    DashboardModule,
   ],
   providers: [
     // Rate limiting aplicado em todas as rotas

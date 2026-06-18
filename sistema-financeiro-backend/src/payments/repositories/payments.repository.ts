@@ -8,6 +8,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { payments } from '@prisma/client';
 import { CreatePaymentDto } from '../dto/create-payment.dto';
+import { DateUtil } from '../../common/utils/date.util';
 
 @Injectable()
 export class PaymentsRepository {
@@ -19,7 +20,7 @@ export class PaymentsRepository {
         installment_id:  dto.installment_id,
         amount_paid:     dto.amount,           // DTO usa 'amount', banco usa 'amount_paid'
         payment_method:  dto.payment_method,
-        paid_at:         dto.paid_at ? new Date(dto.paid_at) : new Date(),
+        paid_at:         dto.paid_at ? DateUtil.parseLocalDate(dto.paid_at) : new Date(),
         notes:           dto.notes,
       },
     });

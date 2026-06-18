@@ -39,7 +39,9 @@ export class ExpensesService {
   async create(userId: number, dto: CreateExpenseDto): Promise<expenses> {
     // Se marcada como paga mas sem data de pagamento, usa a data atual
     if (dto.is_paid && !dto.paid_at) {
-      dto.paid_at = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      // Usa data LOCAL (não UTC) para não deslocar o dia em fusos negativos
+      const now = new Date();
+      dto.paid_at = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
 
     const expense = await this.expensesRepository.create(userId, dto);
